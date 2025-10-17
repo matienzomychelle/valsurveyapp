@@ -93,10 +93,19 @@ const Survey = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-primary to-primary-dark text-primary-foreground rounded-t-lg">
+    <div className="min-h-screen relative py-8 px-4 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-primary/5 to-transparent rounded-full blur-3xl" />
+      </div>
+      
+      <div className="max-w-4xl mx-auto relative z-10">
+        <Card className="shadow-2xl backdrop-blur-sm bg-card/95 border-2 border-primary/20 animate-fade-in">
+          <CardHeader className="bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground rounded-t-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,transparent)]" />
+            <div className="relative z-10">
             <div className="flex items-center gap-4 mb-4">
               <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-16 h-16" />
               <div>
@@ -104,9 +113,10 @@ const Survey = () => {
                 <CardDescription className="text-primary-foreground/90">HELP US SERVE YOU BETTER!</CardDescription>
               </div>
             </div>
+            </div>
           </CardHeader>
 
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-gradient-to-b from-background to-muted/20">
             <div className="mb-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-foreground">
                 This Client Satisfaction Measurement (CSM) tracks the customer experience of government offices. Your feedback
