@@ -30,12 +30,17 @@ const Index = () => {
               City Government of Valenzuela's modern solution for collecting, analyzing, 
               and acting on citizen feedback to improve public services.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
+              <Button size="lg" variant="outline" onClick={() => navigate('/admin')} className="text-lg px-8 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
+                Admin Dashboard
+              </Button>
+            </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" onClick={() => navigate('/survey')} className="text-lg px-8">
                 Take Survey Now
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/admin')} className="text-lg px-8 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
-                Admin Dashboard
+              <Button size="lg" variant="secondary" onClick={() => navigate('/about')} className="text-lg px-8">
+                About Survey
               </Button>
             </div>
           </div>
