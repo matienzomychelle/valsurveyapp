@@ -206,6 +206,11 @@ const Survey = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Citizen's Charter (CC) Awareness</CardTitle>
+                  <CardDescription className="mt-2">
+                    The Citizen's Charter is an official document that describes the services provided by this office, 
+                    including requirements, fees, processing times, and procedures. It serves as a guide to help you 
+                    understand what to expect from our services.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
