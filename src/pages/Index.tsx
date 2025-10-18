@@ -28,7 +28,7 @@ const Index = () => {
       {/* Hero Section */}
       <section
         className="relative bg-gradient-to-br from-primary via-primary-dark to-primary bg-cover bg-center"
-        style={{ backgroundImage: `linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%), url(${heroImage})` }}
+        style={{ backgroundImage: `linear-gradient(135deg, rgba(220, 38, 38, 0.65) 0%, rgba(185, 28, 28, 0.65) 100%), url(${heroImage})` }}
       >
         <div className="container mx-auto px-4 py-20 md:py-32">
           <div className="max-w-4xl mx-auto text-center text-primary-foreground">
