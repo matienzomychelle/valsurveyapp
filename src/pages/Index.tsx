@@ -18,8 +18,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Top Navigation */}
+      <div className="fixed top-0 right-0 z-50 p-4">
+        <Button size="lg" variant="outline" onClick={() => navigate('/admin')} className="text-lg px-8 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
+          Admin Dashboard
+        </Button>
+      </div>
+
       {/* Hero Section */}
-      <section 
+      <section
         className="relative bg-gradient-to-br from-primary via-primary-dark to-primary bg-cover bg-center"
         style={{ backgroundImage: `linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%), url(${heroImage})` }}
       >
@@ -38,11 +45,6 @@ const Index = () => {
               City Government of Valenzuela's modern solution for collecting, analyzing, 
               and acting on citizen feedback to improve public services.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
-              <Button size="lg" variant="outline" onClick={() => navigate('/admin')} className="text-lg px-8 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
-                Admin Dashboard
-              </Button>
-            </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" onClick={() => setShowPrivacyDialog(true)} className="text-lg px-8">
                 Take Survey Now
