@@ -1,184 +1,210 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Users, TrendingUp, FileText, Home } from "lucide-react";
-import valenzuelaSeal from "@/assets/valenzuela-seal.png";
-import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { LogOut, Users, TrendingUp, BarChart3 } from "lucide-react";
+import type { Session } from "@supabase/supabase-js";
+
+interface SurveyResponse {
+  id: string;
+  client_type: string;
+  date_of_transaction: string;
+  sex: string | null;
+  age: number | null;
+  region: string | null;
+  service_availed: string;
+  cc1: string | null;
+  cc2: string | null;
+  cc3: string | null;
+  sqd0: number | null;
+  sqd1: number | null;
+  sqd2: number | null;
+  sqd3: number | null;
+  sqd4: number | null;
+  sqd5: number | null;
+  sqd6: number | null;
+  sqd7: number | null;
+  sqd8: number | null;
+  suggestions: string | null;
+  email: string | null;
+  created_at: string;
+}
 
 const Admin = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [responses, setResponses] = useState<SurveyResponse[]>([]);
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simple demo authentication - in production, use proper authentication
-    if (username === "admin" && password === "admin") {
-      setIsAuthenticated(true);
-      toast({
-        title: "Login Successful",
-        description: "Welcome to ValSurvey+ Admin Dashboard",
-      });
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Try admin/admin",
-        variant: "destructive",
-      });
+  useEffect(() => {
+    // Check authentication and admin role
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      setSession(session);
+
+      // Check if user has admin role
+      const { data: roleData, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (error || !roleData) {
+        navigate("/");
+        return;
+      }
+
+      setIsAdmin(true);
+      fetchSurveyData();
+      setLoading(false);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setSession(session);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const fetchSurveyData = async () => {
+    const { data, error } = await supabase
+      .from('survey_responses')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setResponses(data);
     }
   };
 
-  // Get survey data from localStorage
-  const getSurveyData = () => {
-    const data = localStorage.getItem('surveyResponses');
-    return data ? JSON.parse(data) : [];
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
   };
 
-  const responses = getSurveyData();
-  const totalResponses = responses.length;
-
-  // Calculate average satisfaction
   const calculateAverageSatisfaction = () => {
     if (responses.length === 0) return 0;
-    const validResponses = responses.filter((r: any) => r.sqd0 && r.sqd0 !== 'na');
-    if (validResponses.length === 0) return 0;
-    const sum = validResponses.reduce((acc: number, r: any) => acc + parseInt(r.sqd0), 0);
-    return (sum / validResponses.length).toFixed(2);
+
+    const validRatings = responses.filter(r => r.sqd0).map(r => r.sqd0!);
+    if (validRatings.length === 0) return 0;
+
+    const sum = validRatings.reduce((acc, rating) => acc + rating, 0);
+    return (sum / validRatings.length).toFixed(2);
   };
 
-  // Calculate satisfaction distribution
   const getSatisfactionDistribution = () => {
-    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, na: 0 };
-    responses.forEach((r: any) => {
-      if (r.sqd0) {
-        distribution[r.sqd0 as keyof typeof distribution]++;
+    const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    
+    responses.forEach(response => {
+      if (response.sqd0) {
+        distribution[response.sqd0]++;
       }
     });
+
     return distribution;
   };
 
-  if (!isAuthenticated) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full shadow-lg">
-          <CardHeader className="text-center space-y-4">
-            <div className="flex justify-center">
-              <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-20 h-20" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-primary">ValSurvey+ Admin</CardTitle>
-            <CardDescription>Sign in to access the dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Sign In
-              </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Demo credentials: admin / admin
-              </p>
-            </form>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
       </div>
     );
   }
 
-  const distribution = getSatisfactionDistribution();
+  if (!isAdmin) {
+    return null;
+  }
+
+  const satisfactionDist = getSatisfactionDistribution();
+  const totalResponses = responses.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <div className="border-b bg-card/50 backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-12 h-12" />
-              <div>
-                <h1 className="text-2xl font-bold text-primary">ValSurvey+ Admin</h1>
-                <p className="text-sm text-muted-foreground">Analytics Dashboard</p>
-              </div>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-primary">ValSurvey+ Admin</h1>
+              <p className="text-sm text-muted-foreground">{session?.user.email}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => navigate("/")}>
-                <Home className="w-4 h-4" />
-                Back to Home
+                Home
               </Button>
-              <Button variant="outline" onClick={() => setIsAuthenticated(false)}>
+              <Button variant="destructive" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Responses</CardTitle>
-              <Users className="w-4 h-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{totalResponses}</div>
-              <p className="text-xs text-muted-foreground mt-1">Survey submissions</p>
+              <div className="text-2xl font-bold">{totalResponses}</div>
+              <p className="text-xs text-muted-foreground">Survey submissions</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Average Satisfaction</CardTitle>
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-rating-5">{calculateAverageSatisfaction()}/5</div>
-              <p className="text-xs text-muted-foreground mt-1">Overall rating</p>
+              <div className="text-2xl font-bold">{calculateAverageSatisfaction()}</div>
+              <p className="text-xs text-muted-foreground">Out of 5.00</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Satisfaction Rate</CardTitle>
-              <BarChart className="w-4 h-4 text-muted-foreground" />
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-rating-4">
+              <div className="text-2xl font-bold">
                 {totalResponses > 0 
-                  ? Math.round(((distribution[4] + distribution[5]) / totalResponses) * 100)
+                  ? ((satisfactionDist[4] + satisfactionDist[5]) / totalResponses * 100).toFixed(0)
                   : 0}%
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Agree + Strongly Agree</p>
+              <p className="text-xs text-muted-foreground">Rated 4-5 stars</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Detailed Analytics */}
+        {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -190,31 +216,18 @@ const Admin = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Satisfaction Distribution</CardTitle>
-                <CardDescription>Overall satisfaction ratings breakdown</CardDescription>
+                <CardDescription>Breakdown of satisfaction ratings</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[
-                    { label: "Strongly Agree", value: distribution[5], color: "rating-5" },
-                    { label: "Agree", value: distribution[4], color: "rating-4" },
-                    { label: "Neither", value: distribution[3], color: "rating-3" },
-                    { label: "Disagree", value: distribution[2], color: "rating-2" },
-                    { label: "Strongly Disagree", value: distribution[1], color: "rating-1" },
-                  ].map((item) => (
-                    <div key={item.label} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{item.label}</span>
-                        <span className="text-muted-foreground">{item.value} responses</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-3">
-                        <div
-                          className={`bg-${item.color} h-3 rounded-full transition-all duration-500`}
-                          style={{ width: `${totalResponses > 0 ? (item.value / totalResponses) * 100 : 0}%` }}
-                        />
-                      </div>
+              <CardContent className="space-y-4">
+                {Object.entries(satisfactionDist).reverse().map(([rating, count]) => (
+                  <div key={rating} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>{rating} Stars</span>
+                      <span>{count} responses ({totalResponses > 0 ? ((count / totalResponses) * 100).toFixed(1) : 0}%)</span>
                     </div>
-                  ))}
-                </div>
+                    <Progress value={totalResponses > 0 ? (count / totalResponses) * 100 : 0} />
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </TabsContent>
@@ -222,40 +235,32 @@ const Admin = () => {
           <TabsContent value="responses" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Responses</CardTitle>
-                <CardDescription>Latest survey submissions</CardDescription>
+                <CardTitle>Recent Survey Submissions</CardTitle>
+                <CardDescription>Latest responses from citizens</CardDescription>
               </CardHeader>
               <CardContent>
-                {responses.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No responses yet. Start collecting feedback!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {responses.slice(-10).reverse().map((response: any, index: number) => (
-                      <div key={index} className="border rounded-lg p-4 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold">{response.serviceAvailed}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {response.clientType} • {new Date(response.submittedAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-medium">Satisfaction</p>
-                            <p className="text-2xl font-bold text-rating-5">{response.sqd0}/5</p>
-                          </div>
-                        </div>
-                        {response.suggestions && (
-                          <div className="pt-2 border-t">
-                            <p className="text-sm text-muted-foreground italic">"{response.suggestions}"</p>
-                          </div>
-                        )}
-                      </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Satisfaction</TableHead>
+                      <TableHead>Region</TableHead>
+                      <TableHead>Suggestions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {responses.slice(0, 20).map((response) => (
+                      <TableRow key={response.id}>
+                        <TableCell>{new Date(response.date_of_transaction).toLocaleDateString()}</TableCell>
+                        <TableCell className="max-w-xs truncate">{response.service_availed}</TableCell>
+                        <TableCell>{response.sqd0}/5</TableCell>
+                        <TableCell>{response.region}</TableCell>
+                        <TableCell className="max-w-xs truncate">{response.suggestions || "—"}</TableCell>
+                      </TableRow>
                     ))}
-                  </div>
-                )}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </TabsContent>
@@ -263,23 +268,18 @@ const Admin = () => {
           <TabsContent value="analytics" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Detailed Analytics</CardTitle>
-                <CardDescription>Coming soon: Advanced analytics and reporting features</CardDescription>
+                <CardTitle>Advanced Analytics</CardTitle>
+                <CardDescription>Coming soon</CardDescription>
               </CardHeader>
-              <CardContent className="text-center py-12">
-                <BarChart className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground mb-4">
-                  Advanced analytics features including trend analysis, exportable reports, 
-                  and data segmentation will be available soon.
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Advanced analytics features will be available in future updates.
                 </p>
-                <Button variant="outline" disabled>
-                  Export Reports (Coming Soon)
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   );
 };

@@ -1,17 +1,44 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import valenzuelaSeal from "@/assets/valenzuela-seal.png";
 import { Frown, Meh, Smile } from "lucide-react";
+import { z } from "zod";
+
+// Input validation schema
+const surveySchema = z.object({
+  clientType: z.string().min(1, "Client type is required").max(50),
+  date: z.string().min(1, "Date is required"),
+  sex: z.enum(["Male", "Female", "Prefer not to say"]),
+  age: z.number().min(1, "Age must be at least 1").max(120, "Age must be at most 120").optional(),
+  region: z.string().max(100).optional(),
+  serviceAvailed: z.string().min(1, "Service availed is required").max(200),
+  cc1: z.enum(["Yes", "No"]).optional(),
+  cc2: z.enum(["Easy to see", "Somewhat easy", "Difficult", "N/A"]).optional(),
+  cc3: z.enum(["Yes", "No", "N/A"]).optional(),
+  sqd0: z.number().min(1).max(5),
+  sqd1: z.number().min(1).max(5),
+  sqd2: z.number().min(1).max(5),
+  sqd3: z.number().min(1).max(5),
+  sqd4: z.number().min(1).max(5),
+  sqd5: z.number().min(1).max(5),
+  sqd6: z.number().min(1).max(5),
+  sqd7: z.number().min(1).max(5),
+  sqd8: z.number().min(1).max(5),
+  suggestions: z.string().max(2000, "Suggestions must be at most 2000 characters").optional(),
+  email: z.string().email("Invalid email format").max(255).optional().or(z.literal("")),
+});
 
 const Survey = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     clientType: "",
     date: new Date().toISOString().split('T')[0],
@@ -35,33 +62,81 @@ const Survey = () => {
     email: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
-    const requiredFields = ['clientType', 'sex', 'serviceAvailed', 'cc1', 'sqd0', 'sqd1', 'sqd2', 'sqd3', 'sqd4', 'sqd5', 'sqd6', 'sqd7', 'sqd8'];
-    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
-    
-    if (missingFields.length > 0) {
-      toast({
-        title: "Please complete all required fields",
-        description: "Some questions are still unanswered.",
-        variant: "destructive",
+
+    try {
+      // Validate form data
+      const validatedData = surveySchema.parse({
+        clientType: formData.clientType,
+        date: formData.date,
+        sex: formData.sex === "male" ? "Male" : formData.sex === "female" ? "Female" : "Prefer not to say",
+        age: formData.age ? parseInt(formData.age) : undefined,
+        region: formData.region || undefined,
+        serviceAvailed: formData.serviceAvailed,
+        cc1: formData.cc1 === "1" ? "Yes" : formData.cc1 === "4" ? "No" : undefined,
+        cc2: formData.cc2 === "1" ? "Easy to see" : formData.cc2 === "2" ? "Somewhat easy" : formData.cc2 === "3" ? "Difficult" : formData.cc2 === "5" ? "N/A" : undefined,
+        cc3: formData.cc3 === "1" || formData.cc3 === "2" ? "Yes" : formData.cc3 === "3" ? "No" : formData.cc3 === "4" ? "N/A" : undefined,
+        sqd0: formData.sqd0 && formData.sqd0 !== "na" ? parseInt(formData.sqd0) : undefined,
+        sqd1: formData.sqd1 && formData.sqd1 !== "na" ? parseInt(formData.sqd1) : undefined,
+        sqd2: formData.sqd2 && formData.sqd2 !== "na" ? parseInt(formData.sqd2) : undefined,
+        sqd3: formData.sqd3 && formData.sqd3 !== "na" ? parseInt(formData.sqd3) : undefined,
+        sqd4: formData.sqd4 && formData.sqd4 !== "na" ? parseInt(formData.sqd4) : undefined,
+        sqd5: formData.sqd5 && formData.sqd5 !== "na" ? parseInt(formData.sqd5) : undefined,
+        sqd6: formData.sqd6 && formData.sqd6 !== "na" ? parseInt(formData.sqd6) : undefined,
+        sqd7: formData.sqd7 && formData.sqd7 !== "na" ? parseInt(formData.sqd7) : undefined,
+        sqd8: formData.sqd8 && formData.sqd8 !== "na" ? parseInt(formData.sqd8) : undefined,
+        suggestions: formData.suggestions || undefined,
+        email: formData.email || undefined,
       });
-      return;
+
+      // Insert to database
+      const { error } = await supabase.from('survey_responses').insert({
+        client_type: validatedData.clientType,
+        date_of_transaction: validatedData.date,
+        sex: validatedData.sex,
+        age: validatedData.age,
+        region: validatedData.region,
+        service_availed: validatedData.serviceAvailed,
+        cc1: validatedData.cc1,
+        cc2: validatedData.cc2,
+        cc3: validatedData.cc3,
+        sqd0: validatedData.sqd0,
+        sqd1: validatedData.sqd1,
+        sqd2: validatedData.sqd2,
+        sqd3: validatedData.sqd3,
+        sqd4: validatedData.sqd4,
+        sqd5: validatedData.sqd5,
+        sqd6: validatedData.sqd6,
+        sqd7: validatedData.sqd7,
+        sqd8: validatedData.sqd8,
+        suggestions: validatedData.suggestions,
+        email: validatedData.email,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Your survey response has been submitted.",
+      });
+
+      navigate('/thank-you');
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: error.errors[0].message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to submit survey. Please try again.",
+        });
+      }
     }
-
-    // Store data in localStorage (in production, this would go to a database)
-    const existingData = JSON.parse(localStorage.getItem('surveyResponses') || '[]');
-    existingData.push({ ...formData, submittedAt: new Date().toISOString() });
-    localStorage.setItem('surveyResponses', JSON.stringify(existingData));
-
-    toast({
-      title: "Survey submitted successfully!",
-      description: "Thank you for your valuable feedback.",
-    });
-
-    navigate('/thank-you');
   };
 
   const RatingScale = ({ name, value, onChange }: { name: string; value: string; onChange: (value: string) => void }) => (
@@ -160,6 +235,7 @@ const Survey = () => {
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({...formData, date: e.target.value})}
+                        max={new Date().toISOString().split('T')[0]}
                       />
                     </div>
                     <div>
@@ -183,6 +259,8 @@ const Survey = () => {
                         id="age"
                         type="number"
                         placeholder="Age"
+                        min="1"
+                        max="120"
                         value={formData.age}
                         onChange={(e) => setFormData({...formData, age: e.target.value})}
                       />
@@ -195,6 +273,7 @@ const Survey = () => {
                       <Input
                         id="region"
                         placeholder="Region"
+                        maxLength={100}
                         value={formData.region}
                         onChange={(e) => setFormData({...formData, region: e.target.value})}
                       />
@@ -204,6 +283,7 @@ const Survey = () => {
                       <Input
                         id="service"
                         placeholder="Service Availed"
+                        maxLength={200}
                         value={formData.serviceAvailed}
                         onChange={(e) => setFormData({...formData, serviceAvailed: e.target.value})}
                       />
@@ -270,7 +350,7 @@ const Survey = () => {
                             { value: "4", label: "Not Applicable" },
                           ].map((option) => (
                             <div key={option.value} className="flex items-start space-x-2">
-                              <RadioGroupItem value={option.value} id={`cc3-${option.value}`} />
+                              <RadioGroupItem value={option.value} id={`cc3-${option.value}`} className="cursor-pointer" />
                               <Label htmlFor={`cc3-${option.value}`} className="cursor-pointer">{option.label}</Label>
                             </div>
                           ))}
@@ -322,10 +402,12 @@ const Survey = () => {
                     <Textarea
                       id="suggestions"
                       placeholder="Your suggestions..."
+                      maxLength={2000}
                       value={formData.suggestions}
                       onChange={(e) => setFormData({...formData, suggestions: e.target.value})}
                       rows={4}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">{formData.suggestions.length}/2000 characters</p>
                   </div>
 
                   <div>
@@ -334,6 +416,7 @@ const Survey = () => {
                       id="email"
                       type="email"
                       placeholder="your.email@example.com"
+                      maxLength={255}
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                     />
