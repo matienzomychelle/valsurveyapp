@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, Users, TrendingUp, BarChart3 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import SurveyManagement from "@/components/admin/SurveyManagement";
+import ResponseMonitoring from "@/components/admin/ResponseMonitoring";
 
 interface SurveyResponse {
   id: string;
@@ -235,36 +236,7 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="responses" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Survey Submissions</CardTitle>
-                <CardDescription>Latest responses from citizens</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Satisfaction</TableHead>
-                      <TableHead>Region</TableHead>
-                      <TableHead>Suggestions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {responses.slice(0, 20).map((response) => (
-                      <TableRow key={response.id}>
-                        <TableCell>{new Date(response.date_of_transaction).toLocaleDateString()}</TableCell>
-                        <TableCell className="max-w-xs truncate">{response.service_availed}</TableCell>
-                        <TableCell>{response.sqd0}/5</TableCell>
-                        <TableCell>{response.region}</TableCell>
-                        <TableCell className="max-w-xs truncate">{response.suggestions || "—"}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <ResponseMonitoring />
           </TabsContent>
 
           <TabsContent value="surveys" className="space-y-4">
