@@ -236,6 +236,7 @@ const Survey = () => {
                         value={formData.date}
                         onChange={(e) => setFormData({...formData, date: e.target.value})}
                         max={new Date().toISOString().split('T')[0]}
+                        className="w-full max-w-[180px]"
                       />
                     </div>
                     <div>
