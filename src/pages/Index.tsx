@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,28 @@ const Index = () => {
     setShowPrivacyDialog(false);
     navigate('/survey');
   };
+
+  // Scroll animation effect
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      }
+    );
+
+    const elements = document.querySelectorAll('.scroll-animate');
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -60,7 +82,7 @@ const Index = () => {
       {/* Features Section */}
       <section className="py-20 bg-gradient-to-br from-background to-muted/20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in-up">
+          <div className="text-center mb-16 scroll-animate opacity-0 translate-y-8 transition-all duration-700">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Why ValSurvey+?
             </h2>
@@ -71,7 +93,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-100 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader>
                 <Shield className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>ARTA Compliant</CardTitle>
@@ -81,7 +103,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-200 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader>
                 <Smartphone className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Multi-Platform</CardTitle>
@@ -91,7 +113,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-300 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader>
                 <QrCode className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Easy Access</CardTitle>
@@ -101,7 +123,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-[400ms] border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader>
                 <BarChart3 className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Real-time Analytics</CardTitle>
@@ -111,7 +133,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-500 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader>
                 <TrendingUp className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Data-Driven Decisions</CardTitle>
@@ -121,7 +143,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-[600ms] border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader>
                 <Lock className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Secure & Private</CardTitle>
@@ -155,7 +177,7 @@ const Index = () => {
       {/* Why Your Feedback Matters Section */}
       <section className="py-20 bg-gradient-to-br from-muted/30 to-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in-up">
+          <div className="text-center mb-16 scroll-animate opacity-0 translate-y-8 transition-all duration-700">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Why Your Feedback Matters
             </h2>
@@ -165,7 +187,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-100 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader className="text-center">
                 <div className="w-20 h-20 mx-auto bg-muted rounded-2xl flex items-center justify-center mb-4">
                   <Shield className="w-10 h-10 text-primary" />
@@ -177,7 +199,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-200 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader className="text-center">
                 <div className="w-20 h-20 mx-auto bg-muted rounded-2xl flex items-center justify-center mb-4">
                   <Smartphone className="w-10 h-10 text-primary" />
@@ -189,7 +211,7 @@ const Index = () => {
               </CardHeader>
             </Card>
 
-            <Card className="border-primary/20 hover:shadow-lg transition-all hover:-translate-y-1 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+            <Card className="scroll-animate opacity-0 translate-y-8 transition-all duration-700 delay-300 border-primary/20 hover:shadow-lg hover:-translate-y-1">
               <CardHeader className="text-center">
                 <div className="w-20 h-20 mx-auto bg-muted rounded-2xl flex items-center justify-center mb-4">
                   <TrendingUp className="w-10 h-10 text-primary" />

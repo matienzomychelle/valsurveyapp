@@ -123,3 +123,21 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Scroll animations */
+.scroll-animate {
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-animate.animate-in {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Staggered animation delays */
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+.delay-\[400ms\] { transition-delay: 400ms; }
+.delay-500 { transition-delay: 500ms; }
+.delay-\[600ms\] { transition-delay: 600ms; }
