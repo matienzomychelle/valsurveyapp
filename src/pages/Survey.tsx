@@ -193,16 +193,16 @@ const Survey = () => {
   );
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
+    <div className="min-h-screen flex relative bg-gradient-to-br from-primary/5 via-background to-primary/10">
       {/* Decorative background elements */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-primary/5 to-transparent rounded-full blur-3xl" />
       </div>
 
-      {/* Sidebar Navigation */}
-      <div className="hidden lg:block w-72 bg-card border-r border-border/50 sticky top-0 h-screen overflow-hidden shadow-xl">
+      {/* Sidebar Navigation - Fixed */}
+      <div className="hidden lg:block w-72 bg-card border-r border-border/50 fixed left-0 top-0 h-screen overflow-hidden shadow-xl z-40">
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="p-6 border-b border-border/50 bg-gradient-to-b from-muted/30 to-transparent">
@@ -279,7 +279,8 @@ const Survey = () => {
         </div>
       </div>
       
-      <div className="flex-1 py-8 px-4 overflow-y-auto">
+      {/* Main Content - with left margin to account for fixed sidebar */}
+      <div className="flex-1 lg:ml-72 py-8 px-4 overflow-y-auto">
         <div className="max-w-4xl mx-auto relative z-10">
         <Card className="shadow-2xl backdrop-blur-sm bg-card/95 border-2 border-primary/20 animate-fade-in">
           <CardHeader className="bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground rounded-t-lg relative overflow-hidden">
