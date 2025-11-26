@@ -226,21 +226,110 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card border-t py-8">
+      {/* Data Privacy & Compliance Section */}
+      <section className="py-16 bg-gradient-to-br from-background to-muted/10">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-12 h-12" />
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">City Government of Valenzuela</p>
-                <p className="text-muted-foreground">Customer Satisfaction Survey System</p>
+          <div className="max-w-4xl mx-auto bg-card rounded-2xl shadow-lg p-8 md:p-12 border border-border/50 scroll-animate opacity-0 translate-y-8 transition-all duration-700">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              <div className="flex gap-4 shrink-0">
+                <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center">
+                  <Lock className="w-8 h-8 text-primary" />
+                </div>
+                <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-primary" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                  Data Privacy & Compliance
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  All responses are securely processed and protected under the{" "}
+                  <span className="font-semibold text-foreground">Data Privacy Act of 2012</span> and{" "}
+                  <span className="font-semibold text-foreground">ARTA guidelines</span>. Your information is confidential and used solely for improving government services.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" onClick={() => navigate('/privacy-policy')} className="border-primary/30 hover:bg-primary/10">
+                    Privacy Policy
+                  </Button>
+                  <Button variant="outline" className="border-primary/30 hover:bg-primary/10">
+                    Terms of Use
+                  </Button>
+                </div>
               </div>
             </div>
-            <div className="text-sm text-muted-foreground text-center md:text-right">
-              <p>© 2025 ValSurvey+. All rights reserved.</p>
-              <p>ARTA-Compliant | Data Privacy Protected</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[hsl(210,50%,20%)] text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
+            {/* City Info */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-16 h-16" />
+                <div>
+                  <h3 className="font-bold text-xl">City of Valenzuela</h3>
+                  <p className="text-sm opacity-90">ARTA CSS System</p>
+                </div>
+              </div>
+              <p className="text-sm opacity-90 leading-relaxed mb-4">
+                Digitizing citizen feedback for better public services. Your voice helps us build a more efficient and transparent local government.
+              </p>
+              <div className="flex gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  <span>ARTA Compliant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  <span>DPA 2012</span>
+                </div>
+              </div>
             </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <button onClick={() => navigate('/')} className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                    Home
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/about')} className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                    About the Platform
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setShowPrivacyDialog(true)} className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                    Take the Survey
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/privacy-policy')} className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                    Privacy Policy
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Get in Touch */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Get in Touch</h3>
+              <div className="text-sm space-y-2">
+                <p className="font-semibold">City Government of Valenzuela</p>
+                <p className="opacity-90">Information and Communications Technology Office (ICTO)</p>
+                <p className="opacity-90 mt-4">icto@valenzuela.gov.ph</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-white/20 pt-6 text-center text-sm opacity-75">
+            <p>© 2025 ValSurvey+. All rights reserved.</p>
           </div>
         </div>
       </footer>
