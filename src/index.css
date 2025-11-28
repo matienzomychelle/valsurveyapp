@@ -4,6 +4,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 2rem; /* Add padding for better anchor positioning */
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -119,10 +120,6 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     @apply bg-background text-foreground;
   }
@@ -130,12 +127,14 @@ All colors MUST be HSL.
 
 /* Scroll animations */
 .scroll-animate {
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.2s ease-out, transform 1.2s ease-out;
 }
 
 .scroll-animate.animate-in {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Staggered animation delays */
@@ -145,3 +144,17 @@ All colors MUST be HSL.
 .delay-\[400ms\] { transition-delay: 400ms; }
 .delay-500 { transition-delay: 500ms; }
 .delay-\[600ms\] { transition-delay: 600ms; }
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

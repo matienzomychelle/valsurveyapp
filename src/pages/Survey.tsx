@@ -25,15 +25,15 @@ const surveySchema = z.object({
   cc1: z.enum(["Yes", "No"]).optional(),
   cc2: z.enum(["Easy to see", "Somewhat easy", "Difficult", "N/A"]).optional(),
   cc3: z.enum(["Yes", "No", "N/A"]).optional(),
-  sqd0: z.number().min(1).max(5),
-  sqd1: z.number().min(1).max(5),
-  sqd2: z.number().min(1).max(5),
-  sqd3: z.number().min(1).max(5),
-  sqd4: z.number().min(1).max(5),
-  sqd5: z.number().min(1).max(5),
-  sqd6: z.number().min(1).max(5),
-  sqd7: z.number().min(1).max(5),
-  sqd8: z.number().min(1).max(5),
+  sqd0: z.number().min(1).max(5).optional(),
+  sqd1: z.number().min(1).max(5).optional(),
+  sqd2: z.number().min(1).max(5).optional(),
+  sqd3: z.number().min(1).max(5).optional(),
+  sqd4: z.number().min(1).max(5).optional(),
+  sqd5: z.number().min(1).max(5).optional(),
+  sqd6: z.number().min(1).max(5).optional(),
+  sqd7: z.number().min(1).max(5).optional(),
+  sqd8: z.number().min(1).max(5).optional(),
   suggestions: z.string().max(2000, "Suggestions must be at most 2000 characters").optional(),
   email: z.string().email("Invalid email format").max(255).optional().or(z.literal("")),
 });
@@ -90,6 +90,27 @@ const services = [
   "Tree Cutting Permit / Urban Greening Programs",
 ];
 
+const regions = [
+  "Region I – Ilocos Region",
+  "Region II – Cagayan Valley",
+  "Region III – Central Luzon",
+  "Region IV‑A – CALABARZON",
+  "MIMAROPA Region",
+  "Region V – Bicol Region",
+  "Region VI – Western Visayas",
+  "Region VII – Central Visayas",
+  "Region VIII – Eastern Visayas",
+  "Region IX – Zamboanga Peninsula",
+  "Region X – Northern Mindanao",
+  "Region XI – Davao Region",
+  "Region XII – SOCCSKSARGEN",
+  "Region XIII – Caraga",
+  "NCR – National Capital Region",
+  "CAR – Cordillera Administrative Region",
+  "BARMM – Bangsamoro Autonomous Region in Muslim Mindanao",
+  "NIR – Negros Island Region",
+];
+
 const Survey = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -121,29 +142,39 @@ const Survey = () => {
     e.preventDefault();
 
     try {
-      // Validate form data
-      const validatedData = surveySchema.parse({
+      // Build validated data object conditionally for optional sqd fields
+      const validatedData: any = {
         clientType: formData.clientType,
         date: formData.date,
         sex: formData.sex === "male" ? "Male" : formData.sex === "female" ? "Female" : "Prefer not to say",
-        age: formData.age ? parseInt(formData.age) : undefined,
-        region: formData.region || undefined,
         serviceAvailed: formData.serviceAvailed,
-        cc1: formData.cc1 === "1" ? "Yes" : formData.cc1 === "4" ? "No" : undefined,
-        cc2: formData.cc2 === "1" ? "Easy to see" : formData.cc2 === "2" ? "Somewhat easy" : formData.cc2 === "3" ? "Difficult" : formData.cc2 === "5" ? "N/A" : undefined,
-        cc3: formData.cc3 === "1" || formData.cc3 === "2" ? "Yes" : formData.cc3 === "3" ? "No" : formData.cc3 === "4" ? "N/A" : undefined,
-        sqd0: formData.sqd0 && formData.sqd0 !== "na" ? parseInt(formData.sqd0) : undefined,
-        sqd1: formData.sqd1 && formData.sqd1 !== "na" ? parseInt(formData.sqd1) : undefined,
-        sqd2: formData.sqd2 && formData.sqd2 !== "na" ? parseInt(formData.sqd2) : undefined,
-        sqd3: formData.sqd3 && formData.sqd3 !== "na" ? parseInt(formData.sqd3) : undefined,
-        sqd4: formData.sqd4 && formData.sqd4 !== "na" ? parseInt(formData.sqd4) : undefined,
-        sqd5: formData.sqd5 && formData.sqd5 !== "na" ? parseInt(formData.sqd5) : undefined,
-        sqd6: formData.sqd6 && formData.sqd6 !== "na" ? parseInt(formData.sqd6) : undefined,
-        sqd7: formData.sqd7 && formData.sqd7 !== "na" ? parseInt(formData.sqd7) : undefined,
-        sqd8: formData.sqd8 && formData.sqd8 !== "na" ? parseInt(formData.sqd8) : undefined,
-        suggestions: formData.suggestions || undefined,
-        email: formData.email || undefined,
-      });
+      };
+
+      // Add optional fields
+      if (formData.age) validatedData.age = parseInt(formData.age);
+      if (formData.region) validatedData.region = formData.region;
+      if (formData.cc1 === "1" || formData.cc1 === "4") validatedData.cc1 = formData.cc1 === "1" ? "Yes" : "No";
+      if (formData.cc2 && formData.cc2 !== "5") validatedData.cc2 = formData.cc2 === "1" ? "Easy to see" : formData.cc2 === "2" ? "Somewhat easy" : formData.cc2 === "3" ? "Difficult" : "Not visible at all";
+      if (formData.cc2 === "5") validatedData.cc2 = "N/A";
+      if (formData.cc3 && formData.cc3 !== "4") validatedData.cc3 = formData.cc3 === "1" || formData.cc3 === "2" ? "Yes" : "No";
+      if (formData.cc3 === "4") validatedData.cc3 = "N/A";
+
+      // Add sqd fields only if they have valid values (not "na")
+      if (formData.sqd0 && formData.sqd0 !== "na") validatedData.sqd0 = parseInt(formData.sqd0);
+      if (formData.sqd1 && formData.sqd1 !== "na") validatedData.sqd1 = parseInt(formData.sqd1);
+      if (formData.sqd2 && formData.sqd2 !== "na") validatedData.sqd2 = parseInt(formData.sqd2);
+      if (formData.sqd3 && formData.sqd3 !== "na") validatedData.sqd3 = parseInt(formData.sqd3);
+      if (formData.sqd4 && formData.sqd4 !== "na") validatedData.sqd4 = parseInt(formData.sqd4);
+      if (formData.sqd5 && formData.sqd5 !== "na") validatedData.sqd5 = parseInt(formData.sqd5);
+      if (formData.sqd6 && formData.sqd6 !== "na") validatedData.sqd6 = parseInt(formData.sqd6);
+      if (formData.sqd7 && formData.sqd7 !== "na") validatedData.sqd7 = parseInt(formData.sqd7);
+      if (formData.sqd8 && formData.sqd8 !== "na") validatedData.sqd8 = parseInt(formData.sqd8);
+
+      if (formData.suggestions) validatedData.suggestions = formData.suggestions;
+      if (formData.email) validatedData.email = formData.email;
+
+      // Validate form data
+      surveySchema.parse(validatedData);
 
       // Insert to database
       const { error } = await supabase.from('survey_responses').insert({
@@ -214,7 +245,7 @@ const Survey = () => {
   };
 
   const RatingScale = ({ name, value, onChange }: { name: string; value: string; onChange: (value: string) => void }) => (
-    <RadioGroup value={value} onValueChange={onChange} className="flex flex-wrap gap-3 justify-start">
+    <RadioGroup value={value} onValueChange={onChange} className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4 justify-items-center">
       {[
         { value: "1", label: "Strongly Disagree", emoji: "😞" },
         { value: "2", label: "Disagree", emoji: "🙁" },
@@ -225,12 +256,12 @@ const Survey = () => {
       ].map((option) => {
         const isSelected = value === option.value;
         return (
-          <div key={option.value} className="flex flex-col items-center gap-2">
-            <Label 
-              htmlFor={`${name}-${option.value}`} 
+          <div key={option.value} className="flex flex-col items-center gap-2 min-w-0">
+            <Label
+              htmlFor={`${name}-${option.value}`}
               className={`cursor-pointer transition-all duration-200 ${isSelected ? 'scale-110' : 'hover:scale-105'}`}
             >
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl border-2 transition-all duration-200 ${getColorClasses(option.value, isSelected)}`}>
+              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl sm:text-3xl border-2 transition-all duration-200 ${getColorClasses(option.value, isSelected)}`}>
                 {option.emoji}
               </div>
               <RadioGroupItem
@@ -239,9 +270,38 @@ const Survey = () => {
                 className="sr-only"
               />
             </Label>
-            <span className={`text-xs text-center max-w-[85px] leading-tight ${isSelected ? 'font-semibold' : 'text-muted-foreground'}`}>
+            <span className={`text-xs text-center leading-tight px-1 ${isSelected ? 'font-semibold' : 'text-muted-foreground'}`}>
               {option.label}
             </span>
+          </div>
+        );
+      })}
+    </RadioGroup>
+  );
+
+  const RectangularChoice = ({ name, value, onChange, options }: { name: string; value: string; onChange: (value: string) => void; options: { value: string; label: string }[] }) => (
+    <RadioGroup value={value} onValueChange={onChange} className="grid grid-cols-1 gap-3">
+      {options.map((option) => {
+        const isSelected = value === option.value;
+        return (
+          <div key={option.value} className="flex items-center gap-3">
+            <Label
+              htmlFor={`${name}-${option.value}`}
+              className={`cursor-pointer transition-all duration-100 ease-out flex-1 p-4 rounded-lg border-2 text-left ${
+                isSelected
+                  ? 'bg-primary text-primary-foreground border-primary shadow-lg scale-[1.02]'
+                  : 'bg-background border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02]'
+              }`}
+            >
+              <RadioGroupItem
+                value={option.value}
+                id={`${name}-${option.value}`}
+                className="sr-only"
+              />
+              <span className={`text-sm font-medium ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}>
+                {option.label}
+              </span>
+            </Label>
           </div>
         );
       })}
@@ -360,23 +420,23 @@ const Survey = () => {
       </div>
       
       {/* Main Content - with left margin to account for fixed sidebar */}
-      <div className="flex-1 lg:ml-72 py-8 px-4 overflow-y-auto">
-        <div className="max-w-4xl mx-auto relative z-10">
+      <div className="lg:ml-72 py-4 px-2 sm:py-8 sm:px-4 overflow-y-auto">
+        <div className="w-full relative z-10">
         <Card className="shadow-2xl backdrop-blur-sm bg-card/95 border-2 border-primary/20 animate-fade-in">
           <CardHeader className="bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground rounded-t-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,transparent)]" />
             <div className="relative z-10">
-            <div className="flex items-center gap-4 mb-4">
-              <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-16 h-16" />
-              <div>
-                <CardTitle className="text-2xl font-bold">CITY GOVERNMENT OF VALENZUELA</CardTitle>
-                <CardDescription className="text-primary-foreground/90">HELP US SERVE YOU BETTER!</CardDescription>
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+              <img src={valenzuelaSeal} alt="City of Valenzuela Seal" className="w-16 h-16 flex-shrink-0" />
+              <div className="text-center sm:text-left">
+                <CardTitle className="text-xl sm:text-2xl font-bold leading-tight">CITY GOVERNMENT OF VALENZUELA</CardTitle>
+                <CardDescription className="text-primary-foreground/90 text-sm sm:text-base">HELP US SERVE YOU BETTER!</CardDescription>
               </div>
             </div>
             </div>
           </CardHeader>
 
-          <CardContent className="p-6 bg-gradient-to-b from-background to-muted/20">
+          <CardContent className="p-4 bg-gradient-to-b from-background to-muted/20">
             <div className="mb-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-foreground">
                 This Client Satisfaction Measurement (CSM) tracks the customer experience of government offices. Your feedback
@@ -395,7 +455,7 @@ const Survey = () => {
                   <div>
                     <Label>Client Type *</Label>
                     <RadioGroup value={formData.clientType} onValueChange={(value) => setFormData({...formData, clientType: value})}>
-                      <div className="flex gap-4 mt-2">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-2">
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="citizen" id="citizen" />
                           <Label htmlFor="citizen">Citizen</Label>
@@ -456,98 +516,103 @@ const Survey = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="region">Region of Residence</Label>
-                      <Input
-                        id="region"
-                        placeholder="Region"
-                        maxLength={100}
-                        value={formData.region}
-                        onChange={(e) => setFormData({...formData, region: e.target.value})}
-                      />
+                      <Select value={formData.region} onValueChange={(value) => setFormData({...formData, region: value})}>
+                        <SelectTrigger id="region" className="w-full">
+                          <SelectValue placeholder="Select a region" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px] sm:max-h-[300px] min-w-[var(--radix-select-trigger-width)] max-w-[250px] z-50 relative overflow-y-auto">
+                          {regions.map((region) => (
+                            <SelectItem key={region} value={region} className="text-sm sm:text-base">
+                              {region}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <Label htmlFor="service">Service Availed *</Label>
                       <Select value={formData.serviceAvailed} onValueChange={(value) => setFormData({...formData, serviceAvailed: value})}>
-                        <SelectTrigger id="service">
+                        <SelectTrigger id="service" className="w-full">
                           <SelectValue placeholder="Select a service" />
                         </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          <SelectItem value="licensing-permits-header" disabled className="font-semibold text-primary">
+                        <SelectContent className="max-h-[200px] sm:max-h-[300px] min-w-[var(--radix-select-trigger-width)] max-w-[250px] z-50 relative overflow-y-auto">
+                          <SelectItem value="licensing-permits-header" disabled className="font-semibold text-primary text-sm sm:text-base">
                             Licensing & Permits
                           </SelectItem>
                           {services.slice(0, 9).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="civil-registry-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="civil-registry-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Civil Registry Services
                           </SelectItem>
                           {services.slice(9, 16).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="tax-revenue-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="tax-revenue-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Tax & Revenue Services
                           </SelectItem>
                           {services.slice(16, 21).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="health-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="health-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Health-Related Services
                           </SelectItem>
                           {services.slice(21, 27).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="social-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="social-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Social Services
                           </SelectItem>
                           {services.slice(27, 34).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="id-cert-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="id-cert-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             ID & Certification Issuance
                           </SelectItem>
                           {services.slice(34, 38).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="housing-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="housing-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Housing & Land Services
                           </SelectItem>
                           {services.slice(38, 42).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="infrastructure-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="infrastructure-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Infrastructure & Engineering Services
                           </SelectItem>
                           {services.slice(42, 46).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
-                          
-                          <SelectItem value="environmental-header" disabled className="font-semibold text-primary mt-2">
+
+                          <SelectItem value="environmental-header" disabled className="font-semibold text-primary mt-2 text-sm sm:text-base">
                             Environmental Services
                           </SelectItem>
                           {services.slice(46).map((service) => (
-                            <SelectItem key={service} value={service}>
+                            <SelectItem key={service} value={service} className="text-sm sm:text-base">
                               {service}
                             </SelectItem>
                           ))}
@@ -571,56 +636,50 @@ const Survey = () => {
                 <CardContent className="space-y-4">
                   <div>
                     <Label className="font-semibold">CC1: Which of the following best describes your awareness of a CC? *</Label>
-                    <RadioGroup value={formData.cc1} onValueChange={(value) => setFormData({...formData, cc1: value})} className="mt-2 space-y-2">
-                      {[
+                    <RectangularChoice
+                      name="cc1"
+                      value={formData.cc1}
+                      onChange={(value) => setFormData({...formData, cc1: value})}
+                      options={[
                         { value: "1", label: "I know what a CC is and I saw this office's CC" },
                         { value: "2", label: "I know what a CC is but I did NOT see this office's CC" },
                         { value: "3", label: "I learned of the CC only when I saw this office's CC" },
                         { value: "4", label: "I do not know what a CC is and I did not see one in this office" },
-                      ].map((option) => (
-                        <div key={option.value} className="flex items-start space-x-2">
-                          <RadioGroupItem value={option.value} id={`cc1-${option.value}`} />
-                          <Label htmlFor={`cc1-${option.value}`} className="cursor-pointer">{option.label}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                      ]}
+                    />
                   </div>
 
                   {formData.cc1 !== "4" && (
                     <>
                       <div>
                         <Label className="font-semibold">CC2: If aware of CC, would you say that the CC of this office was...?</Label>
-                        <RadioGroup value={formData.cc2} onValueChange={(value) => setFormData({...formData, cc2: value})} className="mt-2 space-y-2">
-                          {[
+                        <RectangularChoice
+                          name="cc2"
+                          value={formData.cc2}
+                          onChange={(value) => setFormData({...formData, cc2: value})}
+                          options={[
                             { value: "1", label: "Easy to see" },
                             { value: "2", label: "Somewhat easy to see" },
                             { value: "3", label: "Difficult to see" },
                             { value: "4", label: "Not visible at all" },
                             { value: "5", label: "Not Applicable" },
-                          ].map((option) => (
-                            <div key={option.value} className="flex items-start space-x-2">
-                              <RadioGroupItem value={option.value} id={`cc2-${option.value}`} />
-                              <Label htmlFor={`cc2-${option.value}`} className="cursor-pointer">{option.label}</Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                          ]}
+                        />
                       </div>
 
                       <div>
                         <Label className="font-semibold">CC3: How much did the CC help you in your transaction?</Label>
-                        <RadioGroup value={formData.cc3} onValueChange={(value) => setFormData({...formData, cc3: value})} className="mt-2 space-y-2">
-                          {[
+                        <RectangularChoice
+                          name="cc3"
+                          value={formData.cc3}
+                          onChange={(value) => setFormData({...formData, cc3: value})}
+                          options={[
                             { value: "1", label: "Helped very much" },
                             { value: "2", label: "Somewhat helped" },
                             { value: "3", label: "Did not help" },
                             { value: "4", label: "Not Applicable" },
-                          ].map((option) => (
-                            <div key={option.value} className="flex items-start space-x-2">
-                              <RadioGroupItem value={option.value} id={`cc3-${option.value}`} className="cursor-pointer" />
-                              <Label htmlFor={`cc3-${option.value}`} className="cursor-pointer">{option.label}</Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                          ]}
+                        />
                       </div>
                     </>
                   )}
@@ -690,11 +749,11 @@ const Survey = () => {
                 </CardContent>
               </Card>
 
-              <div className="flex justify-center gap-4 pt-4">
-                <Button type="button" variant="outline" size="lg" onClick={() => navigate('/')} className="lg:hidden">
+              <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                <Button type="button" variant="outline" size="lg" onClick={() => navigate('/')} className="lg:hidden w-full sm:w-auto">
                   Back to Home
                 </Button>
-                <Button type="submit" size="lg" className="px-12">
+                <Button type="submit" size="lg" className="w-full sm:w-auto px-8 sm:px-12">
                   Submit Survey
                 </Button>
               </div>
