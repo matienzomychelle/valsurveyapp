@@ -75,7 +75,7 @@ const Index = () => {
                 Take Survey Now
               </Button>
               <Button size="lg" variant="secondary" onClick={() => navigate('/about')} className="text-lg px-8 transition-transform hover:scale-105 animate-float">
-                About Survey
+                About The Survey
               </Button>
             </div>
           </div>
@@ -342,13 +342,13 @@ const Index = () => {
             {/* Quick Links */}
             <div className="lg:col-span-3">
               <h3 className="font-bold text-lg mb-6 relative inline-block">
-                Quick Links
+                Links
                 <div className="absolute -bottom-2 left-0 w-12 h-1 bg-primary-foreground/50 rounded-full"></div>
               </h3>
               <ul className="space-y-3">
                 {[
                   { label: 'Home', action: () => navigate('/') },
-                  { label: 'About the Platform', action: () => navigate('/about') },
+                  { label: 'About the Survey', action: () => navigate('/about') },
                   { label: 'Take the Survey', action: () => setShowPrivacyDialog(true) },
                   { label: 'Privacy Policy', action: () => navigate('/privacy-policy') },
                   { label: 'Terms of Use', action: () => navigate('/terms-of-use') }
