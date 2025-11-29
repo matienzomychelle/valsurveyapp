@@ -369,7 +369,7 @@ const Index = () => {
             {/* Contact Information */}
             <div className="lg:col-span-4">
               <h3 className="font-bold text-lg mb-6 relative inline-block">
-                Get in Touch
+                Contact Us
                 <div className="absolute -bottom-2 left-0 w-12 h-1 bg-primary-foreground/50 rounded-full"></div>
               </h3>
               <div className="space-y-4">
