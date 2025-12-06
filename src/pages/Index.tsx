@@ -45,7 +45,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation */}
-      <div className="fixed top-0 right-0 z-50 p-4 animate-slide-in-right">
+      <div className="fixed top-0 right-0 z-50 p-4 animate-slide-in-right hidden md:block">
         <Button size="lg" variant="outline" onClick={() => navigate('/admin')} className="text-lg px-8 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 transition-transform hover:scale-105">
           Admin Dashboard
         </Button>
