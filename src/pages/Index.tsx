@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { BarChart3, Shield, Smartphone, TrendingUp, QrCode, Lock } from "lucide-react";
 import valenzuelaSeal from "@/assets/valenzuela-seal.png";
 import heroImage from "@/assets/hero-bg.jpg";
+import valsurveyQr from "@/assets/valsurveyqr.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -77,6 +78,39 @@ const Index = () => {
               <Button size="lg" variant="secondary" onClick={() => navigate('/about')} className="text-lg px-8 transition-transform hover:scale-105 animate-float">
                 About The Survey
               </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* QR Code Download Section */}
+      <section className="py-20 bg-gradient-to-br from-primary to-primary-dark">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="scroll-animate opacity-0 translate-y-8 transition-all duration-700">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                Access the Survey Easily
+              </h2>
+              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+                Scan the QR code or download it for quick access to the ValSurvey+ feedback system anytime, anywhere.
+              </p>
+              <div className="bg-white p-8 rounded-2xl shadow-lg border border-primary/20 inline-block">
+                <img
+                  src={valsurveyQr}
+                  alt="ValSurvey QR Code"
+                  className="w-64 h-64 mx-auto mb-6"
+                />
+                <a
+                  href={valsurveyQr}
+                  download="valsurveyqr.jpg"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download QR Code
+                </a>
+              </div>
             </div>
           </div>
         </div>
